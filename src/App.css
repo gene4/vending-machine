@@ -1,0 +1,34 @@
+@import "https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css";
+
+.App {
+    text-align: center;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.products-grid {
+    margin: 64px 0;
+    display: grid;
+    width: 600px;
+    grid-template-columns: repeat(5, 1fr);
+    justify-content: center;
+    align-items: center;
+}
+
+.product-container {
+    width: 150px;
+    margin: 1rem;
+}
+
+.product-emoji {
+    font-size: 6rem;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.product-emoji:hover {
+    transform: scale(1.1);
+    transition: all 0.2s;
+}
