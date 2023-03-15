@@ -9,7 +9,6 @@ import Products from "./components/Products";
 import EditUserModal from "./components/EditUserModal";
 import DeleteUserModal from "./components/DeleteUserModal";
 import AddProductModal from "./components/AddProductModal";
-import DeleteProductModal from "./components/DeleteProductModal";
 
 function App() {
     const [user, setUser] = useState<UserT | undefined>();
@@ -27,11 +26,11 @@ function App() {
                 .get(`http://localhost:8080/api/user/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 })
-                .then(function ({ data }) {
+                .then(({ data }) => {
                     setUser(data.user);
                     navigate("/products");
                 })
-                .catch(function (error) {
+                .catch((error) => {
                     console.log(error);
                 });
         }
@@ -44,6 +43,11 @@ function App() {
                     <div className="is-flex media">
                         <b>{user.username}</b>
                         <p className="mx-1">({user.role})</p>
+                        {user.role === "buyer" && (
+                            <p>
+                                <b className="ml-2">Deposit:</b> {user.deposit}
+                            </p>
+                        )}
                     </div>
                     <div>
                         {user.role === "seller" && (
@@ -62,7 +66,7 @@ function App() {
                         </button>
                         <button
                             onClick={() => setModalToOpen("DeleteUser")}
-                            className="button is-link"
+                            className="button is-danger"
                         >
                             Delete profile
                         </button>
@@ -108,7 +112,6 @@ function App() {
                 <AddProductModal
                     modalToOpen={modalToOpen}
                     setModalToOpen={setModalToOpen}
-                    products={products}
                     setProducts={setProducts}
                 />
             )}
