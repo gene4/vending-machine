@@ -6,104 +6,12 @@ const jwt = require("jsonwebtoken");
 const app = express();
 const port = 8080;
 
-let users = [
-    {
-        id: "dd879625-29b7-45cc-bdd8-e4d5aadb32b4",
-        username: "gene4",
-        password:
-            "$2b$10$.2sV6zq45fLei/Mebuy2l.gjToLzJqx2dZMF3nr1.poQHhOaahsXe",
-        deposit: 0,
-        role: "seller",
-    },
-];
-let products = [
-    {
-        id: "1",
-        amountAvailable: 2,
-        cost: 10,
-        productName: "🍊",
-        sellerId: "dsjhfkjdsfh",
-    },
-    {
-        id: "2",
-        amountAvailable: 2,
-        cost: 10,
-        productName: "🧃",
-        sellerId: "dsjhfkjdsfh",
-    },
-    {
-        id: "3",
-        amountAvailable: 2,
-        cost: 10,
-        productName: "🍫",
-        sellerId: "dsjhfkjdsfh",
-    },
-    {
-        id: "4",
-        amountAvailable: 2,
-        cost: 10,
-        productName: "🍊",
-        sellerId: "dsjhfkjdsfh",
-    },
-    {
-        id: "5",
-        amountAvailable: 2,
-        cost: 10,
-        productName: "🧃",
-        sellerId: "dsjhfkjdsfh",
-    },
-    {
-        id: "6",
-        amountAvailable: 2,
-        cost: 10,
-        productName: "🍫",
-        sellerId: "dsjhfkjdsfh",
-    },
-    {
-        id: "7",
-        amountAvailable: 2,
-        cost: 10,
-        productName: "🍊",
-        sellerId: "dsjhfkjdsfh",
-    },
-    {
-        id: "8",
-        amountAvailable: 2,
-        cost: 10,
-        productName: "🧃",
-        sellerId: "dsjhfkjdsfh",
-    },
-    {
-        id: "9",
-        amountAvailable: 2,
-        cost: 10,
-        productName: "🍫",
-        sellerId: "dsjhfkjdsfh",
-    },
-    {
-        id: "10",
-        amountAvailable: 2,
-        cost: 10,
-        productName: "🍊",
-        sellerId: "dsjhfkjdsfh",
-    },
-    {
-        id: "11",
-        amountAvailable: 2,
-        cost: 10,
-        productName: "🧃",
-        sellerId: "dsjhfkjdsfh",
-    },
-    {
-        id: "12",
-        amountAvailable: 2,
-        cost: 10,
-        productName: "🍫",
-        sellerId: "dsjhfkjdsfh",
-    },
-];
+let { users } = require("./data.ts");
+let { products } = require("./data.ts");
 
-//middleware
+console.log(users);
+// MIDDLEWARE
+
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
@@ -122,13 +30,11 @@ const verifyToken = (req, res, next) => {
 
 app.use(express.json());
 app.use(cors());
-//routes
 
-app.get("/api/users", async (req, res) => {
-    res.send(users);
-});
+// USER ROUTES
 
 app.post("/api/register", async (req, res) => {
+    // Register new user
     const uuid = crypto.randomUUID();
     const { username, password, deposit, role } = req.body.newUser;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -154,6 +60,7 @@ app.post("/api/register", async (req, res) => {
 });
 
 app.post("/api/signin", async (req, res) => {
+    // Signin user
     const user = users.find((user) => user.username === req.body.username);
     if (user == null) {
         return res.status(400).send("Cannot find user");
@@ -173,6 +80,7 @@ app.post("/api/signin", async (req, res) => {
 });
 
 app.get("/api/user/:id", verifyToken, async (req, res) => {
+    // Get user
     const id = req.params.id;
     const user = users.find((user) => user.id === id);
 
@@ -187,6 +95,7 @@ app.get("/api/user/:id", verifyToken, async (req, res) => {
 });
 
 app.put("/api/user/:id", async (req, res) => {
+    // Update user
     const { id } = req.params;
     const { username, password } = req.body;
 
@@ -204,23 +113,23 @@ app.put("/api/user/:id", async (req, res) => {
     }
 });
 
-app.delete("/api/product/:id", verifyToken, async (req, res) => {
+app.delete("/api/user/:id", verifyToken, async (req, res) => {
+    // Delete user
     const { id } = req.params;
-    const productToDelete = products.find((product) => product.id === id);
-
-    if (req.user.id !== productToDelete.sellerId) {
+    if (req.user.id !== id) {
         return res
             .status(401)
-            .json({ message: "Only the seller of this product can delete it" });
+            .json({ message: "Only the user can delete their own account" });
     }
-
     try {
-        products = products.filter((product) => product.id !== id);
-        return res.json({ products });
+        users = users.filter((user) => user.id !== id);
+        return res.json({ users });
     } catch {
         res.status(500).send();
     }
 });
+
+// PRODUCT ROUTES
 
 app.get("/api/products", verifyToken, async (req, res) => {
     try {
@@ -251,6 +160,24 @@ app.post("/api/products", verifyToken, async (req, res) => {
     try {
         products.push(newProduct);
         console.log(newProduct);
+        return res.json({ products });
+    } catch {
+        res.status(500).send();
+    }
+});
+
+app.delete("/api/product/:id", verifyToken, async (req, res) => {
+    const { id } = req.params;
+    const productToDelete = products.find((product) => product.id === id);
+
+    if (req.user.id !== productToDelete.sellerId) {
+        return res
+            .status(401)
+            .json({ message: "Only the seller of this product can delete it" });
+    }
+
+    try {
+        products = products.filter((product) => product.id !== id);
         return res.json({ products });
     } catch {
         res.status(500).send();
