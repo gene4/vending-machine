@@ -18,14 +18,19 @@ function DeleteUserModal({
     const navigate = useNavigate();
 
     const handleDelete = () => {
+        const token = localStorage.getItem("token");
         axios
-            .delete(`http://localhost:8080/api/user/${userId}`)
-            .then(function () {
+            .delete(`http://localhost:8080/api/user/${userId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            .then(() => {
                 setUser(undefined);
                 setModalToOpen(null);
+                localStorage.removeItem("token");
+                localStorage.removeItem("userId");
                 navigate("/");
             })
-            .catch(function (error) {
+            .catch((error) => {
                 console.log(error);
             });
     };
@@ -44,14 +49,14 @@ function DeleteUserModal({
                 <div className="is-flex is-justify-content-center">
                     <button
                         onClick={() => setModalToOpen(null)}
-                        className="button is-danger mt-3"
+                        className="button is-primary mt-3"
                         type="button"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleDelete}
-                        className="button is-primary mt-3  ml-5"
+                        className="button is-danger mt-3  ml-5"
                         type="submit"
                     >
                         Delete

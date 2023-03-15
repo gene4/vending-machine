@@ -5,16 +5,10 @@ interface Props {
     modalToOpen: ModalT;
     setModalToOpen: (modalToOpen: ModalT) => void;
     setProducts: (products: ProductT[]) => void;
-    products: ProductT[];
 }
-function AddProductModal({
-    modalToOpen,
-    setModalToOpen,
-    products,
-    setProducts,
-}: Props) {
+function AddProductModal({ modalToOpen, setModalToOpen, setProducts }: Props) {
     const [product, setProduct] = useState("");
-    const [amount, setAmount] = useState(0);
+    const [amount, setAmount] = useState(1);
     const [cost, setCost] = useState(0);
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -69,6 +63,7 @@ function AddProductModal({
                         <input
                             type="number"
                             name="amount"
+                            min={1}
                             value={amount}
                             required
                             onChange={(event) =>
@@ -82,6 +77,7 @@ function AddProductModal({
                         <input
                             type="number"
                             name="amount"
+                            step={"any"}
                             value={cost}
                             required
                             onChange={(event) =>
