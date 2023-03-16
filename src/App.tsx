@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ModalT, ProductT, UserT } from "../types";
 import "./App.css";
 import Signin from "./components/Signin";
@@ -12,7 +12,7 @@ import AddProductModal from "./components/AddProductModal";
 import DepositModal from "./components/DepositModal";
 
 function App() {
-    const [ready, setReady] = useState(() => !localStorage.getItem("userId"));
+    const [ready, setReady] = useState(() => !localStorage.getItem("token"));
     const [user, setUser] = useState<UserT | undefined>();
     const [products, setProducts] = useState<ProductT[] | undefined>();
     const [modalToOpen, setModalToOpen] = useState<ModalT>(null);
@@ -39,6 +39,11 @@ function App() {
                 });
         }
     }, [navigate]);
+
+    const handleSignOut = useCallback(() => {
+        localStorage.removeItem("token");
+        setUser(undefined);
+    }, []);
 
     if (!ready) {
         return <h1>Loading...</h1>;
@@ -84,6 +89,12 @@ function App() {
                             className="button is-danger"
                         >
                             Delete profile
+                        </button>
+                        <button
+                            onClick={handleSignOut}
+                            className="button is-info ml-3"
+                        >
+                            Sign out
                         </button>
                     </div>
                 </header>

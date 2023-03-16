@@ -25,7 +25,6 @@ function Signup({ setUser }: Props) {
             .then(function (response) {
                 setUser(response.data.user);
                 localStorage.setItem("token", response.data.token);
-                localStorage.setItem("userId", response.data.user.id);
                 navigate("/products");
             })
             .catch(function (error) {

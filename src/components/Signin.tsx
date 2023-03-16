@@ -24,7 +24,6 @@ function Signin({ setUser }: Props) {
             .then(function ({ data }) {
                 setUser(data.user);
                 localStorage.setItem("token", data.token);
-                localStorage.setItem("userId", data.user.id);
                 navigate("/products");
             })
             .catch(function (error) {
