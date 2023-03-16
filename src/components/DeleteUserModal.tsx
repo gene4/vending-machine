@@ -1,40 +1,36 @@
 import axios from "axios";
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ModalT, UserT } from "../../types";
+import { deleteUser } from "../api";
 import Modal from "./Modal";
 
 interface Props {
     modalToOpen: ModalT;
     setModalToOpen: (modalToOpen: ModalT) => void;
-    userId: string;
     setUser: (user: UserT | undefined) => void;
 }
 
 function DeleteUserModal({
     modalToOpen,
     setModalToOpen,
-    userId,
+
     setUser,
 }: Props) {
     const navigate = useNavigate();
 
-    const handleDelete = () => {
-        const token = localStorage.getItem("token");
-        axios
-            .delete(`http://localhost:8080/api/user/${userId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            })
+    const handleDelete = useCallback(() => {
+        deleteUser()
             .then(() => {
                 setUser(undefined);
                 setModalToOpen(null);
                 localStorage.removeItem("token");
-                localStorage.removeItem("userId");
                 navigate("/");
             })
             .catch((error) => {
                 console.log(error);
             });
-    };
+    }, [navigate, setModalToOpen, setUser]);
 
     return (
         <Modal

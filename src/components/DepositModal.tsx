@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useCallback, useState } from "react";
 import { ModalT, UserT } from "../../types";
+import { deposit } from "../api";
 import Modal from "./Modal";
 
 interface Props {
@@ -30,18 +31,9 @@ function DepositModal({
     const handleSubmit = useCallback(
         (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
-            const token = localStorage.getItem("token");
+
             setIsSubmitting(true);
-            axios
-                .post(
-                    `http://localhost:8080/api/deposit/`,
-                    {
-                        value: selectedValue,
-                    },
-                    {
-                        headers: { Authorization: `Bearer ${token}` },
-                    }
-                )
+            deposit(selectedValue)
                 .then(({ data }) => {
                     setUser(data);
                 })
@@ -60,21 +52,27 @@ function DepositModal({
             isOpen={modalToOpen === "Deposit"}
             close={() => setModalToOpen(null)}
         >
-            <h2>Current deposit: {userDepositValue}</h2>
-            <form onSubmit={handleSubmit}>
-                {values.map((value) => (
-                    <label key={value} className="ml-5" htmlFor="role">
-                        {value}
-                        <input
-                            type="radio"
-                            name="role"
-                            value={value}
-                            checked={value === selectedValue}
-                            onChange={() => setSelectedValue(value)}
-                            className="radio mx-1"
-                        />
-                    </label>
-                ))}
+            <h2 className="subtitle">Current deposit: {userDepositValue}</h2>
+            <form className="p-0" onSubmit={handleSubmit}>
+                <div className="is-flex is-justify-content-center">
+                    {values.map((value) => (
+                        <label
+                            key={value}
+                            className="ml-5 mb-3 is-block"
+                            htmlFor="value"
+                        >
+                            {value}
+                            <input
+                                type="radio"
+                                name="value"
+                                value={value}
+                                checked={value === selectedValue}
+                                onChange={() => setSelectedValue(value)}
+                                className="radio mx-2"
+                            />
+                        </label>
+                    ))}
+                </div>
                 <div className="is-flex is-justify-content-center">
                     <button
                         onClick={handleClose}

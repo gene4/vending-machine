@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { ModalT, ProductT, UserT } from "../types";
 import "./App.css";
@@ -10,6 +9,7 @@ import EditUserModal from "./components/EditUserModal";
 import DeleteUserModal from "./components/DeleteUserModal";
 import AddProductModal from "./components/AddProductModal";
 import DepositModal from "./components/DepositModal";
+import { getUser } from "./api";
 
 function App() {
     const [ready, setReady] = useState(() => !localStorage.getItem("token"));
@@ -23,10 +23,7 @@ function App() {
         const token = localStorage.getItem("token");
 
         if (token) {
-            axios
-                .get(`http://localhost:8080/api/user`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                })
+            getUser()
                 .then(({ data }) => {
                     setUser(data.user);
                     navigate("/products");
@@ -43,7 +40,8 @@ function App() {
     const handleSignOut = useCallback(() => {
         localStorage.removeItem("token");
         setUser(undefined);
-    }, []);
+        navigate("/");
+    }, [navigate]);
 
     if (!ready) {
         return <h1>Loading...</h1>;
@@ -130,7 +128,6 @@ function App() {
                     <DeleteUserModal
                         setModalToOpen={setModalToOpen}
                         modalToOpen={modalToOpen}
-                        userId={user.id}
                         setUser={setUser}
                     />
                     <DepositModal

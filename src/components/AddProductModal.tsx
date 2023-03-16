@@ -1,40 +1,35 @@
-import axios from "axios";
 import React, { useState } from "react";
 import { ModalT, ProductT } from "../../types";
+import { addProduct } from "../api";
 import Modal from "./Modal";
 interface Props {
     modalToOpen: ModalT;
     setModalToOpen: (modalToOpen: ModalT) => void;
     setProducts: (products: ProductT[]) => void;
 }
+
+const defaultValues = {
+    product: "",
+    amount: 1,
+    cost: 0,
+};
 function AddProductModal({ modalToOpen, setModalToOpen, setProducts }: Props) {
-    const [product, setProduct] = useState("");
-    const [amount, setAmount] = useState(1);
-    const [cost, setCost] = useState(0);
+    const [product, setProduct] = useState(defaultValues.product);
+    const [amount, setAmount] = useState(defaultValues.amount);
+    const [cost, setCost] = useState(defaultValues.cost);
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const token = localStorage.getItem("token");
-        axios
-            .post(
-                "http://localhost:8080/api/products",
-                {
-                    product,
-                    amount,
-                    cost,
-                },
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            )
-            .then(function ({ data }) {
+        addProduct(product, cost, amount)
+            .then(({ data }) => {
                 setProducts(data.products);
                 setModalToOpen(null);
-                setProduct(" ");
-                setAmount(0);
-                setCost(0);
+
+                setProduct(defaultValues.product);
+                setAmount(defaultValues.amount);
+                setCost(defaultValues.cost);
             })
-            .catch(function (error) {
+            .catch((error) => {
                 console.log(error);
             });
     };

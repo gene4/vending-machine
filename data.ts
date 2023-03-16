@@ -3,7 +3,7 @@ let users = [
         id: "dd879625-29b7-45cc-bdd8-e4d5aadb32b4",
         username: "gene4",
         password:
-            "$2b$10$.2sV6zq45fLei/Mebuy2l.gjToLzJqx2dZMF3nr1.poQHhOaahsXe",
+            "$2b$10$k4TNdhZC0x/t/IJ5BPo4CeBOWxD/sFyiah6XirAX43Qi6pZ.xbN5W",
         deposit: 0,
         role: "seller",
     },

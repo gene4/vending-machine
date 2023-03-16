@@ -1,7 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import { UserT } from "../../types";
 import { useNavigate } from "react-router-dom";
+import { signup } from "../api";
 
 interface Props {
     setUser: (user: UserT) => void;
@@ -16,18 +16,16 @@ function Signup({ setUser }: Props) {
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const newUser = { username, password, role, deposit: 0 };
+        const newUser = { username, password, role };
 
-        axios
-            .post("http://localhost:8080/api/register", {
-                newUser,
-            })
-            .then(function (response) {
-                setUser(response.data.user);
-                localStorage.setItem("token", response.data.token);
+        signup(newUser)
+            .then(({ data }) => {
+                console.log(data);
+                setUser(data.user);
+                localStorage.setItem("token", data.token);
                 navigate("/products");
             })
-            .catch(function (error) {
+            .catch((error) => {
                 console.log(error);
             });
     };

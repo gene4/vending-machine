@@ -1,7 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import { UserT } from "../../types";
 import { Link, useNavigate } from "react-router-dom";
+import { signin } from "../api";
 
 interface Props {
     setUser: (user: UserT) => void;
@@ -10,24 +10,23 @@ interface Props {
 function Signin({ setUser }: Props) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
     const navigate = useNavigate();
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        axios
-            .post("http://localhost:8080/api/signin", {
-                username,
-                password,
-            })
-            .then(function ({ data }) {
+        signin(username, password)
+            .then(({ data }) => {
                 setUser(data.user);
                 localStorage.setItem("token", data.token);
                 navigate("/products");
             })
-            .catch(function (error) {
-                console.log(error);
+            .catch((error) => {
+                if (error) {
+                    setError("User or password are incorrect");
+                }
             });
     };
 
@@ -54,9 +53,11 @@ function Signin({ setUser }: Props) {
                     className="input ml-3"
                 />
             </label>
+            <p className="has-text-danger mb-1">{error}</p>
             <p>
                 Dont have an account? <Link to={"/signup"}>signup here!</Link>
             </p>
+
             <button className="button is-primary mt-5" type="submit">
                 Sign in
             </button>

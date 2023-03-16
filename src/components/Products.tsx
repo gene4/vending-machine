@@ -1,8 +1,8 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ModalT, ProductT, UserT } from "../../types";
 import { useNavigate } from "react-router-dom";
 import DeleteProductModal from "./DeleteProductModal";
+import { deleteProduct, getProducts } from "../api";
 
 interface Props {
     products: ProductT[] | undefined;
@@ -22,27 +22,8 @@ function Products({
     const [productId, setProductId] = useState<string>("");
     const navigate = useNavigate();
 
-    const handleProductDelete = (productId: string) => {
-        const token = localStorage.getItem("token");
-        axios
-            .delete(`http://localhost:8080/api/product/${productId}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            })
-            .then(({ data }) => {
-                setModalToOpen(null);
-                setProducts(data.products);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    };
-
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        axios
-            .get("http://localhost:8080/api/products", {
-                headers: { Authorization: `Bearer ${token}` },
-            })
+        getProducts()
             .then(({ data }) => {
                 setProducts(data);
             })
@@ -51,6 +32,17 @@ function Products({
                 navigate("/");
             });
     }, [navigate, setProducts]);
+
+    const handleProductDelete = useCallback(() => {
+        deleteProduct(productId)
+            .then(({ data }) => {
+                setModalToOpen(null);
+                setProducts(data.products);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, [productId, setModalToOpen, setProducts]);
 
     if (!user) {
         navigate("/");
@@ -100,7 +92,7 @@ function Products({
             <DeleteProductModal
                 setModalToOpen={setModalToOpen}
                 modalToOpen={modalToOpen}
-                handleProductDelete={() => handleProductDelete(productId)}
+                handleProductDelete={handleProductDelete}
             />
         </>
     );

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { ModalT, UserT } from "../../types";
+import { updateUser } from "../api";
 import Modal from "./Modal";
 
 interface Props {
@@ -16,18 +17,13 @@ function EditUserModal({ modalToOpen, setModalToOpen, setUser, user }: Props) {
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log("user.id", user.id);
 
-        axios
-            .put(`http://localhost:8080/api/user/${user.id}`, {
-                username,
-                password,
-            })
-            .then(function ({ data }) {
+        updateUser(username, password)
+            .then(({ data }) => {
                 setUser(data);
                 setModalToOpen(null);
             })
-            .catch(function (error) {
+            .catch((error) => {
                 console.log(error);
             });
     };
@@ -61,7 +57,7 @@ function EditUserModal({ modalToOpen, setModalToOpen, setUser, user }: Props) {
                         <input
                             type="password"
                             name="password"
-                            value={password}
+                            placeholder="Type new password..."
                             required
                             onChange={(event) =>
                                 setPassword(event.target.value)

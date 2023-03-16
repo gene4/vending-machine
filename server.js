@@ -8,7 +8,6 @@ const port = 8080;
 
 let { users, products, depositValues } = require("./data.ts");
 
-console.log("depositValues", depositValues);
 // MIDDLEWARE
 
 const verifyToken = (req, res, next) => {
@@ -40,10 +39,10 @@ app.use(cors());
 
 // USER ROUTES
 
-app.post("/api/register", async (req, res) => {
+app.post("/api/signup", async (req, res) => {
     // Register new user
     const uuid = crypto.randomUUID();
-    const { username, password, deposit, role } = req.body.newUser;
+    const { username, password, role } = req.body.newUser;
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
@@ -51,7 +50,7 @@ app.post("/api/register", async (req, res) => {
             id: uuid,
             username,
             password: hashedPassword,
-            deposit,
+            deposit: 0,
             role,
         };
 
@@ -68,18 +67,19 @@ app.post("/api/register", async (req, res) => {
 
 app.post("/api/signin", async (req, res) => {
     // Signin user
-    const user = users.find((user) => user.username === req.body.username);
+    const { username, password } = req.body;
+    const user = users.find((user) => user.username === username);
     if (user == null) {
         return res.status(400).send("Cannot find user");
     }
     try {
-        if (await bcrypt.compare(req.body.password, user.password)) {
+        if (await bcrypt.compare(password, user.password)) {
             const token = jwt.sign({ id: user.id, role: user.role }, "secret", {
                 expiresIn: "1h",
             });
             return res.json({ token, user });
         } else {
-            res.send("Problem with encrypting password");
+            return res.status(400).send("Invalid password");
         }
     } catch {
         res.status(500).send();
@@ -101,18 +101,21 @@ app.get("/api/user", verifyToken, async (req, res) => {
     }
 });
 
-app.put("/api/user/:id", async (req, res) => {
+app.put("/api/user", verifyToken, async (req, res) => {
     // Update user
-    const { id } = req.params;
+    const { id } = req.user;
     const { username, password } = req.body;
 
+    const userToUpdate = users.find((user) => user.id === id);
+
+    if (userToUpdate == null) {
+        return res.status(400).send("Cannot find user");
+    }
+
     try {
-        const userToUpdate = users.find((user) => user.id === id);
         if (userToUpdate) {
             userToUpdate.username = username;
             userToUpdate.password = password;
-
-            users = users.map((user) => (user.id === id ? userToUpdate : user));
             res.send(userToUpdate);
         }
     } catch {
@@ -120,16 +123,12 @@ app.put("/api/user/:id", async (req, res) => {
     }
 });
 
-app.delete("/api/user/:id", verifyToken, async (req, res) => {
+app.delete("/api/user", verifyToken, async (req, res) => {
     // Delete user
-    const { id } = req.params;
-    if (req.user.id !== id) {
-        return res
-            .status(401)
-            .json({ message: "Only the user can delete their own account" });
-    }
+    const { id } = req.user;
+    users = users.filter((user) => user.id !== id);
+
     try {
-        users = users.filter((user) => user.id !== id);
         return res.json({ users });
     } catch {
         res.status(500).send();
@@ -140,17 +139,12 @@ app.post("/api/deposit", [verifyToken, verifyRole("buyer")], (req, res) => {
     const { value } = req.body;
     const userId = req.user.id;
 
-    console.log("userId", userId);
-    if (!value) {
-        return res.status(422).json({ message: "Please enter a value" });
-    }
-
     if (!depositValues.includes(value)) {
         return res.status(422).json({ message: "Please enter a valid value" });
     }
 
     const userToUpdate = users.find((user) => user.id === userId);
-    console.log("user", userToUpdate);
+
     if (userToUpdate == null) {
         return res.status(400).send("Cannot find user");
     }
@@ -180,6 +174,7 @@ app.post(
     async (req, res) => {
         const { product, cost, amount } = req.body;
         const uuid = crypto.randomUUID();
+
         const newProduct = {
             id: uuid,
             productName: product,
@@ -187,10 +182,9 @@ app.post(
             cost,
             sellerId: req.user.id,
         };
+        products.push(newProduct);
 
         try {
-            products.push(newProduct);
-            console.log(newProduct);
             return res.json({ products });
         } catch {
             res.status(500).send();
@@ -202,14 +196,19 @@ app.delete("/api/product/:id", verifyToken, async (req, res) => {
     const { id } = req.params;
     const productToDelete = products.find((product) => product.id === id);
 
+    if (productToDelete == null) {
+        return res.status(400).send("Cannot find product");
+    }
+
     if (req.user.id !== productToDelete.sellerId) {
         return res
             .status(401)
-            .json({ message: "Only the seller of this product can delete it" });
+            .json("Only the seller of this product can delete it");
     }
 
+    products = products.filter((product) => product.id !== id);
+
     try {
-        products = products.filter((product) => product.id !== id);
         return res.json({ products });
     } catch {
         res.status(500).send();
