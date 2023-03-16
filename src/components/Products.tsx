@@ -57,43 +57,39 @@ function Products({
             <div className="products-grid">
                 {products &&
                     products.map((product) => (
-                        <>
-                            <div key={product.id} className="product-container">
-                                <div className="product-emoji">
-                                    {product.productName}
-                                </div>
-                                <p>{product.amountAvailable} left</p>
-                                {user.role === "buyer" ? (
-                                    <button className="button mt-2 is-rounded is-small is-light is-link is-fullwidth">
-                                        Buy {product.cost}$
-                                    </button>
-                                ) : (
-                                    <>
-                                        <p> {product.cost}$</p>
-                                        {user.id === product.sellerId && (
-                                            <span className="is-flex is-justify-content-space-around">
-                                                <button className="button mt-2 is-small is-rounded is-light is-link">
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        setProductId(
-                                                            product.id
-                                                        );
-                                                        setModalToOpen(
-                                                            "DeleteProduct"
-                                                        );
-                                                    }}
-                                                    className="button mt-2 is-small is-light is-rounded  is-link"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </span>
-                                        )}
-                                    </>
-                                )}
+                        <div key={product.id} className="product-container">
+                            <div className="product-emoji">
+                                {product.productName}
                             </div>
-                        </>
+                            <p>{product.amountAvailable} left</p>
+                            {user.role === "buyer" ? (
+                                <button className="button mt-2 is-rounded is-small is-light is-link is-fullwidth">
+                                    Buy {product.cost}$
+                                </button>
+                            ) : (
+                                <>
+                                    <p> {product.cost}$</p>
+                                    {user.id === product.sellerId && (
+                                        <span className="is-flex is-justify-content-space-around">
+                                            <button className="button mt-2 is-small is-rounded is-light is-link">
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setProductId(product.id);
+                                                    setModalToOpen(
+                                                        "DeleteProduct"
+                                                    );
+                                                }}
+                                                className="button mt-2 is-small is-light is-rounded  is-link"
+                                            >
+                                                Delete
+                                            </button>
+                                        </span>
+                                    )}
+                                </>
+                            )}
+                        </div>
                     ))}
             </div>
             <DeleteProductModal

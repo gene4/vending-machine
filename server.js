@@ -6,10 +6,8 @@ const jwt = require("jsonwebtoken");
 const app = express();
 const port = 8080;
 
-let { users } = require("./data.ts");
-let { products } = require("./data.ts");
+let { users, products } = require("./data.ts");
 
-console.log(users);
 // MIDDLEWARE
 
 const verifyToken = (req, res, next) => {
@@ -25,6 +23,14 @@ const verifyToken = (req, res, next) => {
         next();
     } catch (error) {
         return res.status(403).json({ message: "Invalid token" });
+    }
+};
+
+const verifyRole = (roleToCheck) => (req, res, next) => {
+    if (req.user.role === roleToCheck) {
+        next();
+    } else {
+        return res.status(401).json({ message: "Unauthorized role" });
     }
 };
 
@@ -139,32 +145,29 @@ app.get("/api/products", verifyToken, async (req, res) => {
     }
 });
 
-app.post("/api/products", verifyToken, async (req, res) => {
-    // make that only a "seller" user can post
-    const { product, cost, amount } = req.body;
-    const uuid = crypto.randomUUID();
-    const newProduct = {
-        id: uuid,
-        productName: product,
-        amountAvailable: amount,
-        cost,
-        sellerId: req.user.id,
-    };
+app.post(
+    "/api/products",
+    [verifyToken, verifyRole("seller")],
+    async (req, res) => {
+        const { product, cost, amount } = req.body;
+        const uuid = crypto.randomUUID();
+        const newProduct = {
+            id: uuid,
+            productName: product,
+            amountAvailable: amount,
+            cost,
+            sellerId: req.user.id,
+        };
 
-    if (req.user.role !== "seller") {
-        return res
-            .status(401)
-            .json({ message: "Only sellers can sell products" });
+        try {
+            products.push(newProduct);
+            console.log(newProduct);
+            return res.json({ products });
+        } catch {
+            res.status(500).send();
+        }
     }
-
-    try {
-        products.push(newProduct);
-        console.log(newProduct);
-        return res.json({ products });
-    } catch {
-        res.status(500).send();
-    }
-});
+);
 
 app.delete("/api/product/:id", verifyToken, async (req, res) => {
     const { id } = req.params;

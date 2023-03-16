@@ -11,6 +11,7 @@ import DeleteUserModal from "./components/DeleteUserModal";
 import AddProductModal from "./components/AddProductModal";
 
 function App() {
+    const [ready, setReady] = useState(() => !localStorage.getItem("userId"));
     const [user, setUser] = useState<UserT | undefined>();
     const [products, setProducts] = useState<ProductT[] | undefined>();
     const [modalToOpen, setModalToOpen] = useState<ModalT>(null);
@@ -32,10 +33,16 @@ function App() {
                 })
                 .catch((error) => {
                     console.log(error);
+                })
+                .finally(() => {
+                    setReady(true);
                 });
         }
     }, [navigate]);
 
+    if (!ready) {
+        return <h1>Loading...</h1>;
+    }
     return (
         <div className="App">
             {user && (
@@ -74,7 +81,10 @@ function App() {
                 </header>
             )}
             <Routes>
-                <Route path="/" element={<Signin setUser={setUser} />} />
+                <Route
+                    path="/"
+                    element={user ? null : <Signin setUser={setUser} />}
+                />
                 <Route path="/signup" element={<Signup setUser={setUser} />} />
                 <Route
                     path="/products"
