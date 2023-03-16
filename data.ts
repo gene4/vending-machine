@@ -95,5 +95,8 @@ let products = [
     },
 ];
 
+const depositValues = [5, 10, 20, 50, 100];
+
 module.exports.users = users;
 module.exports.products = products;
+module.exports.depositValues = depositValues;

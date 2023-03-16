@@ -9,7 +9,7 @@ interface Props {
     setProducts: (products: ProductT[]) => void;
     setModalToOpen: (modal: ModalT) => void;
     modalToOpen: ModalT;
-    user: UserT;
+    user: UserT | undefined;
 }
 
 function Products({
@@ -51,6 +51,11 @@ function Products({
                 navigate("/");
             });
     }, [navigate, setProducts]);
+
+    if (!user) {
+        navigate("/");
+        return null;
+    }
 
     return (
         <>

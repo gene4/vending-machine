@@ -9,6 +9,7 @@ import Products from "./components/Products";
 import EditUserModal from "./components/EditUserModal";
 import DeleteUserModal from "./components/DeleteUserModal";
 import AddProductModal from "./components/AddProductModal";
+import DepositModal from "./components/DepositModal";
 
 function App() {
     const [ready, setReady] = useState(() => !localStorage.getItem("userId"));
@@ -19,12 +20,11 @@ function App() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const userId = localStorage.getItem("userId");
         const token = localStorage.getItem("token");
 
-        if (userId) {
+        if (token) {
             axios
-                .get(`http://localhost:8080/api/user/${userId}`, {
+                .get(`http://localhost:8080/api/user`, {
                     headers: { Authorization: `Bearer ${token}` },
                 })
                 .then(({ data }) => {
@@ -65,6 +65,14 @@ function App() {
                                 Add product
                             </button>
                         )}
+                        {user.role === "buyer" && (
+                            <button
+                                onClick={() => setModalToOpen("Deposit")}
+                                className="button is-warning"
+                            >
+                                Deposit
+                            </button>
+                        )}
                         <button
                             onClick={() => setModalToOpen("EditUser")}
                             className="button is-link mx-3"
@@ -89,15 +97,13 @@ function App() {
                 <Route
                     path="/products"
                     element={
-                        user && (
-                            <Products
-                                products={products}
-                                setProducts={setProducts}
-                                user={user}
-                                modalToOpen={modalToOpen}
-                                setModalToOpen={setModalToOpen}
-                            />
-                        )
+                        <Products
+                            products={products}
+                            setProducts={setProducts}
+                            user={user}
+                            modalToOpen={modalToOpen}
+                            setModalToOpen={setModalToOpen}
+                        />
                     }
                 />
             </Routes>
@@ -115,6 +121,12 @@ function App() {
                         modalToOpen={modalToOpen}
                         userId={user.id}
                         setUser={setUser}
+                    />
+                    <DepositModal
+                        setModalToOpen={setModalToOpen}
+                        modalToOpen={modalToOpen}
+                        setUser={setUser}
+                        userDepositValue={user.deposit}
                     />
                 </>
             )}

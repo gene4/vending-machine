@@ -6,8 +6,9 @@ const jwt = require("jsonwebtoken");
 const app = express();
 const port = 8080;
 
-let { users, products } = require("./data.ts");
+let { users, products, depositValues } = require("./data.ts");
 
+console.log("depositValues", depositValues);
 // MIDDLEWARE
 
 const verifyToken = (req, res, next) => {
@@ -85,9 +86,9 @@ app.post("/api/signin", async (req, res) => {
     }
 });
 
-app.get("/api/user/:id", verifyToken, async (req, res) => {
+app.get("/api/user", verifyToken, async (req, res) => {
     // Get user
-    const id = req.params.id;
+    const id = req.user.id;
     const user = users.find((user) => user.id === id);
 
     if (user == null) {
@@ -130,6 +131,34 @@ app.delete("/api/user/:id", verifyToken, async (req, res) => {
     try {
         users = users.filter((user) => user.id !== id);
         return res.json({ users });
+    } catch {
+        res.status(500).send();
+    }
+});
+
+app.post("/api/deposit", [verifyToken, verifyRole("buyer")], (req, res) => {
+    const { value } = req.body;
+    const userId = req.user.id;
+
+    console.log("userId", userId);
+    if (!value) {
+        return res.status(422).json({ message: "Please enter a value" });
+    }
+
+    if (!depositValues.includes(value)) {
+        return res.status(422).json({ message: "Please enter a valid value" });
+    }
+
+    const userToUpdate = users.find((user) => user.id === userId);
+    console.log("user", userToUpdate);
+    if (userToUpdate == null) {
+        return res.status(400).send("Cannot find user");
+    }
+
+    userToUpdate.deposit += value;
+
+    try {
+        res.send(userToUpdate);
     } catch {
         res.status(500).send();
     }
