@@ -103,21 +103,26 @@ app.get("/api/user", verifyToken, async (req, res) => {
 
 app.put("/api/user", verifyToken, async (req, res) => {
     // Update user
-    const { id } = req.user;
     const { username, password } = req.body;
 
-    const userToUpdate = users.find((user) => user.id === id);
+    const userToUpdate = users.find((user) => user.id === req.user.id);
 
     if (userToUpdate == null) {
         return res.status(400).send("Cannot find user");
     }
 
+    // update only if username or password are different from the original value
+    if (username !== req.user.username) {
+        userToUpdate.username = username;
+    }
+
+    if (password !== req.user.password) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        userToUpdate.password = hashedPassword;
+    }
+
     try {
-        if (userToUpdate) {
-            userToUpdate.username = username;
-            userToUpdate.password = password;
-            res.send(userToUpdate);
-        }
+        res.send(userToUpdate);
     } catch {
         res.status(500).send();
     }
