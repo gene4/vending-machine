@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ModalT, UserT } from "../../types";
+import Modal from "./Modal";
 
 interface Props {
     modalToOpen: ModalT;
@@ -36,34 +37,30 @@ function DeleteUserModal({
     };
 
     return (
-        <div className={`modal ${modalToOpen === "DeleteUser" && "is-active"}`}>
-            <div
-                onClick={() => setModalToOpen(null)}
-                className="modal-background"
-            />
-
-            <div className="modal-content box">
-                <h1 className="subtitle">
-                    Are you absolutely sure you want to delete this user?!
-                </h1>
-                <div className="is-flex is-justify-content-center">
-                    <button
-                        onClick={() => setModalToOpen(null)}
-                        className="button is-primary mt-3"
-                        type="button"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={handleDelete}
-                        className="button is-danger mt-3  ml-5"
-                        type="submit"
-                    >
-                        Delete
-                    </button>
-                </div>
+        <Modal
+            isOpen={modalToOpen === "DeleteUser"}
+            close={() => setModalToOpen(null)}
+        >
+            <h1 className="subtitle">
+                Are you absolutely sure you want to delete this user?!
+            </h1>
+            <div className="is-flex is-justify-content-center">
+                <button
+                    onClick={() => setModalToOpen(null)}
+                    className="button is-primary mt-3"
+                    type="button"
+                >
+                    Cancel
+                </button>
+                <button
+                    onClick={handleDelete}
+                    className="button is-danger mt-3  ml-5"
+                    type="submit"
+                >
+                    Delete
+                </button>
             </div>
-        </div>
+        </Modal>
     );
 }
 

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { ModalT, UserT } from "../../types";
+import Modal from "./Modal";
 
 interface Props {
     modalToOpen: ModalT;
@@ -9,7 +10,7 @@ interface Props {
     user: UserT;
 }
 
-function Modal({ modalToOpen, setModalToOpen, setUser, user }: Props) {
+function EditUserModal({ modalToOpen, setModalToOpen, setUser, user }: Props) {
     const [username, setUsername] = useState(user.username);
     const [password, setPassword] = useState(user.password);
 
@@ -32,13 +33,11 @@ function Modal({ modalToOpen, setModalToOpen, setUser, user }: Props) {
     };
 
     return (
-        <div className={`modal ${modalToOpen === "EditUser" && "is-active"}`}>
-            <div
-                onClick={() => setModalToOpen(null)}
-                className="modal-background"
-            />
-
-            <div className="modal-content box is-flex is-justify-content-center">
+        <Modal
+            isOpen={modalToOpen === "EditUser"}
+            close={() => setModalToOpen(null)}
+        >
+            <div className="is-flex is-justify-content-center">
                 <form onSubmit={handleSubmit}>
                     <label className="label is-flex pr-2" htmlFor="username">
                         Username
@@ -86,8 +85,8 @@ function Modal({ modalToOpen, setModalToOpen, setUser, user }: Props) {
                     </button>
                 </form>
             </div>
-        </div>
+        </Modal>
     );
 }
 
-export default Modal;
+export default EditUserModal;

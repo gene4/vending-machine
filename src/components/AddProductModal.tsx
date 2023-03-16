@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { ModalT, ProductT } from "../../types";
+import Modal from "./Modal";
 interface Props {
     modalToOpen: ModalT;
     setModalToOpen: (modalToOpen: ModalT) => void;
@@ -38,13 +39,11 @@ function AddProductModal({ modalToOpen, setModalToOpen, setProducts }: Props) {
             });
     };
     return (
-        <div className={`modal ${modalToOpen === "AddProduct" && "is-active"}`}>
-            <div
-                onClick={() => setModalToOpen(null)}
-                className="modal-background"
-            />
-
-            <div className="modal-content box is-flex is-justify-content-center">
+        <Modal
+            isOpen={modalToOpen === "AddProduct"}
+            close={() => setModalToOpen(null)}
+        >
+            <div className="is-flex is-justify-content-center">
                 <form onSubmit={handleSubmit}>
                     <label className="label is-flex pr-2" htmlFor="username">
                         Product
@@ -102,7 +101,7 @@ function AddProductModal({ modalToOpen, setModalToOpen, setProducts }: Props) {
                     </button>
                 </form>
             </div>
-        </div>
+        </Modal>
     );
 }
 
