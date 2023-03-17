@@ -3,6 +3,7 @@ import { ModalT, ProductT, UserT } from "../../types";
 import { useNavigate } from "react-router-dom";
 import DeleteProductModal from "./DeleteProductModal";
 import { deleteProduct, getProducts } from "../api";
+import EditProductModal from "./EditProductModal";
 
 interface Props {
     products: ProductT[] | undefined;
@@ -19,7 +20,9 @@ function Products({
     setModalToOpen,
     modalToOpen,
 }: Props) {
-    const [productId, setProductId] = useState<string>("");
+    const [selectedProduct, setSelectedProduct] = useState<
+        ProductT | undefined
+    >();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -34,15 +37,24 @@ function Products({
     }, [navigate, setProducts]);
 
     const handleProductDelete = useCallback(() => {
-        deleteProduct(productId)
-            .then(({ data }) => {
-                setModalToOpen(null);
-                setProducts(data.products);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    }, [productId, setModalToOpen, setProducts]);
+        selectedProduct &&
+            deleteProduct(selectedProduct.id)
+                .then(({ data }) => {
+                    setModalToOpen(null);
+                    setProducts(data.products);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+    }, [selectedProduct, setModalToOpen, setProducts]);
+
+    const handleClick = useCallback(
+        (product: ProductT, modal: ModalT) => {
+            setSelectedProduct(product);
+            setModalToOpen(modal);
+        },
+        [setModalToOpen]
+    );
 
     if (!user) {
         navigate("/");
@@ -68,16 +80,24 @@ function Products({
                                     <p> {product.cost}$</p>
                                     {user.id === product.sellerId && (
                                         <span className="is-flex is-justify-content-space-around">
-                                            <button className="button mt-2 is-small is-rounded is-light is-link">
+                                            <button
+                                                onClick={() =>
+                                                    handleClick(
+                                                        product,
+                                                        "EditProduct"
+                                                    )
+                                                }
+                                                className="button mt-2 is-small is-rounded is-light is-link"
+                                            >
                                                 Edit
                                             </button>
                                             <button
-                                                onClick={() => {
-                                                    setProductId(product.id);
-                                                    setModalToOpen(
+                                                onClick={() =>
+                                                    handleClick(
+                                                        product,
                                                         "DeleteProduct"
-                                                    );
-                                                }}
+                                                    )
+                                                }
                                                 className="button mt-2 is-small is-light is-rounded  is-link"
                                             >
                                                 Delete
@@ -89,6 +109,14 @@ function Products({
                         </div>
                     ))}
             </div>
+            {selectedProduct && (
+                <EditProductModal
+                    setModalToOpen={setModalToOpen}
+                    modalToOpen={modalToOpen}
+                    product={selectedProduct}
+                    setProducts={setProducts}
+                />
+            )}
             <DeleteProductModal
                 setModalToOpen={setModalToOpen}
                 modalToOpen={modalToOpen}

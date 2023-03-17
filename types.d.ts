@@ -20,4 +20,5 @@ export type ModalT =
     | "AddProduct"
     | "DeleteProduct"
     | "Deposit"
+    | "EditProduct"
     | null;

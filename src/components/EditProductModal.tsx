@@ -1,56 +1,79 @@
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { ModalT, ProductT } from "../../types";
-import { addProduct } from "../api";
+import { updateProduct } from "../api";
 import Modal from "./Modal";
+
 interface Props {
     modalToOpen: ModalT;
     setModalToOpen: (modalToOpen: ModalT) => void;
     setProducts: (products: ProductT[]) => void;
+    product: ProductT;
 }
 
-const defaultValues = {
-    product: "",
-    amount: 1,
-    cost: 0,
-};
-function AddProductModal({ modalToOpen, setModalToOpen, setProducts }: Props) {
-    const [product, setProduct] = useState(defaultValues.product);
-    const [amount, setAmount] = useState(defaultValues.amount);
-    const [cost, setCost] = useState(defaultValues.cost);
+function EditProductModal({
+    modalToOpen,
+    setModalToOpen,
+    setProducts,
+    product,
+}: Props) {
+    const [productName, setProductName] = useState(product.productName);
+    const [amount, setAmount] = useState(product.amountAvailable);
+    const [cost, setCost] = useState(product.cost);
 
     const handleSubmit = useCallback(
         (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
-            addProduct(product, amount, cost)
+
+            if (
+                productName === product.productName &&
+                amount === product.amountAvailable &&
+                cost === product.cost
+            ) {
+                setModalToOpen(null);
+                return;
+            }
+
+            updateProduct(product.id, productName, amount, cost)
                 .then(({ data }) => {
+                    console.log(data);
+
                     setProducts(data.products);
                     setModalToOpen(null);
-
-                    setProduct(defaultValues.product);
-                    setAmount(defaultValues.amount);
-                    setCost(defaultValues.cost);
                 })
                 .catch((error) => {
                     console.log(error);
                 });
         },
-        [amount, cost, product, setModalToOpen, setProducts]
+        [
+            amount,
+            cost,
+            product.amountAvailable,
+            product.cost,
+            product.id,
+            product.productName,
+            productName,
+            setModalToOpen,
+            setProducts,
+        ]
     );
+
     return (
         <Modal
-            isOpen={modalToOpen === "AddProduct"}
+            isOpen={modalToOpen === "EditProduct"}
             close={() => setModalToOpen(null)}
         >
             <div className="is-flex is-justify-content-center">
                 <form onSubmit={handleSubmit}>
-                    <label className="label is-flex pr-2" htmlFor="username">
+                    <label className="label is-flex pr-2" htmlFor="product">
                         Product
                         <input
                             type="text"
-                            name="username"
+                            name="product"
                             required
-                            value={product}
-                            onChange={(event) => setProduct(event.target.value)}
+                            value={productName}
+                            onChange={(event) =>
+                                setProductName(event.target.value)
+                            }
                             className="input ml-3"
                         />
                     </label>
@@ -96,7 +119,7 @@ function AddProductModal({ modalToOpen, setModalToOpen, setProducts }: Props) {
                         className="button is-primary mt-5 ml-5"
                         type="submit"
                     >
-                        Add
+                        Update
                     </button>
                 </form>
             </div>
@@ -104,4 +127,4 @@ function AddProductModal({ modalToOpen, setModalToOpen, setProducts }: Props) {
     );
 }
 
-export default AddProductModal;
+export default EditProductModal;

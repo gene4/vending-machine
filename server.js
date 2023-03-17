@@ -199,7 +199,8 @@ app.post(
     "/api/products",
     [verifyToken, verifyRole("seller")],
     async (req, res) => {
-        const { product, cost, amount } = req.body;
+        const { product, amount, cost } = req.body;
+        console.log("req.body", req.body);
         const uuid = crypto.randomUUID();
 
         const newProduct = {
@@ -234,6 +235,33 @@ app.delete("/api/product/:id", verifyToken, async (req, res) => {
     }
 
     products = products.filter((product) => product.id !== id);
+
+    try {
+        return res.json({ products });
+    } catch {
+        res.status(500).send();
+    }
+});
+
+app.put("/api/product/:id", verifyToken, async (req, res) => {
+    const { id } = req.params;
+    console.log("id ", id);
+    const { product, cost, amount } = req.body;
+    const productToUpdate = products.find((product) => product.id === id);
+
+    if (productToUpdate == null) {
+        return res.status(400).send("Cannot find product");
+    }
+
+    if (req.user.id !== productToUpdate.sellerId) {
+        return res
+            .status(401)
+            .json("Only the seller of this product can update it");
+    }
+
+    productToUpdate.productName = product;
+    productToUpdate.cost = cost;
+    productToUpdate.amountAvailable = amount;
 
     try {
         return res.json({ products });

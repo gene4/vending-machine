@@ -89,6 +89,26 @@ export const addProduct = (product: string, amount: number, cost: number) => {
     );
 };
 
+export const updateProduct = (
+    id: string,
+    product: string,
+    amount: number,
+    cost: number
+) => {
+    const token = localStorage.getItem("token");
+    return axios.put(
+        `http://localhost:8080/api/product/${id}`,
+        {
+            product,
+            amount,
+            cost,
+        },
+        {
+            headers: { Authorization: `Bearer ${token}` },
+        }
+    );
+};
+
 export const deleteProduct = (productId: string) => {
     const token = localStorage.getItem("token");
     return axios.delete(`http://localhost:8080/api/product/${productId}`, {

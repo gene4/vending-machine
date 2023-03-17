@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useCallback, useState } from "react";
 import { ModalT, UserT } from "../../types";
 import { updateUser } from "../api";
