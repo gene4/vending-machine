@@ -74,7 +74,7 @@ function AddProductModal({ modalToOpen, setModalToOpen, setProducts }: Props) {
                         <input
                             type="number"
                             name="cost"
-                            step={"any"}
+                            step={5}
                             min={0}
                             value={cost}
                             required

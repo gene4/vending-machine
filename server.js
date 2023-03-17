@@ -7,6 +7,7 @@ const app = express();
 const port = 8080;
 
 let { users, products, depositValues } = require("./data.ts");
+const { giveBackChange } = require("./utils.js");
 
 // MIDDLEWARE
 
@@ -55,9 +56,17 @@ app.post("/api/signup", async (req, res) => {
             role,
         };
 
-        const token = jwt.sign({ id: user.id, role: user.role }, "secret", {
-            expiresIn: "1h",
-        });
+        const token = jwt.sign(
+            {
+                id: user.id,
+                role: user.role,
+                username: user.username,
+            },
+            "secret",
+            {
+                expiresIn: "1h",
+            }
+        );
         users.push(user);
 
         return res.json({ token, user });
@@ -75,9 +84,17 @@ app.post("/api/signin", async (req, res) => {
     }
     try {
         if (await bcrypt.compare(password, user.password)) {
-            const token = jwt.sign({ id: user.id, role: user.role }, "secret", {
-                expiresIn: "1h",
-            });
+            const token = jwt.sign(
+                {
+                    id: user.id,
+                    role: user.role,
+                    username: user.username,
+                },
+                "secret",
+                {
+                    expiresIn: "1h",
+                }
+            );
             return res.json({ token, user });
         } else {
             return res.status(400).send("Invalid password");
@@ -200,7 +217,7 @@ app.post(
     [verifyToken, verifyRole("seller")],
     async (req, res) => {
         const { product, amount, cost } = req.body;
-        console.log("req.body", req.body);
+
         const uuid = crypto.randomUUID();
 
         const newProduct = {
@@ -245,7 +262,6 @@ app.delete("/api/product/:id", verifyToken, async (req, res) => {
 
 app.put("/api/product/:id", verifyToken, async (req, res) => {
     const { id } = req.params;
-    console.log("id ", id);
     const { product, cost, amount } = req.body;
     const productToUpdate = products.find((product) => product.id === id);
 
@@ -269,6 +285,60 @@ app.put("/api/product/:id", verifyToken, async (req, res) => {
         res.status(500).send();
     }
 });
+
+app.post(
+    "/api/buy/:id",
+    [verifyToken, verifyRole("buyer")],
+    async (req, res) => {
+        const { amount } = req.body;
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        const user = users.find((user) => user.id === userId);
+        const productToBuy = products.find((product) => product.id === id);
+
+        if (!productToBuy) {
+            return res.status(400).send("Cannot find product");
+        }
+        // Check if product's amount is available
+        if (productToBuy.amountAvailable < amount) {
+            return res
+                .status(401)
+                .json(
+                    `Only ${productToBuy.amount} are available for this product`
+                );
+        }
+
+        // Check if the user have enough money
+        if (user.deposit - productToBuy.cost * amount < 0) {
+            return res
+                .status(401)
+                .json("You don't have enough money for this purchase");
+        }
+
+        // Update product's amount; if the left amount is 0, remove from list
+        const leftAmount = productToBuy.amountAvailable - amount;
+        productToBuy.amountAvailable = leftAmount;
+
+        if (leftAmount === 0) {
+            products = products.filter((product) => product.id !== id);
+        }
+
+        const receipt = {
+            product: productToBuy,
+            total: productToBuy.cost * amount,
+            change: giveBackChange(user.deposit - productToBuy.cost * amount),
+        };
+
+        user.deposit -= productToBuy.cost * amount;
+
+        try {
+            return res.json({ receipt, products, user });
+        } catch {
+            res.status(500).send();
+        }
+    }
+);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);

@@ -115,3 +115,16 @@ export const deleteProduct = (productId: string) => {
         headers: { Authorization: `Bearer ${token}` },
     });
 };
+
+export const buyProduct = (id: string, amount: number) => {
+    const token = localStorage.getItem("token");
+    return axios.post(
+        `http://localhost:8080/api/buy/${id}`,
+        {
+            amount,
+        },
+        {
+            headers: { Authorization: `Bearer ${token}` },
+        }
+    );
+};

@@ -55,7 +55,7 @@ function App() {
                         <p className="mx-1">({user.role})</p>
                         {user.role === "buyer" && (
                             <p>
-                                <b className="ml-2">Deposit:</b> {user.deposit}
+                                <b className="ml-2">Deposit:</b> {user.deposit}¢
                             </p>
                         )}
                     </div>
@@ -109,6 +109,7 @@ function App() {
                         <Products
                             products={products}
                             setProducts={setProducts}
+                            setUser={setUser}
                             user={user}
                             modalToOpen={modalToOpen}
                             setModalToOpen={setModalToOpen}
