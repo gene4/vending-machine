@@ -22,11 +22,6 @@ function DepositModal({
     const [selectedValue, setSelectedValue] = useState(defaultValue);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleClose = useCallback(() => {
-        setModalToOpen(null);
-        setSelectedValue(defaultValue);
-    }, [setModalToOpen]);
-
     const handleSubmit = useCallback(
         (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
@@ -58,6 +53,11 @@ function DepositModal({
                 setIsSubmitting(false);
             });
     }, [setUser]);
+
+    const handleClose = useCallback(() => {
+        setModalToOpen(null);
+        setSelectedValue(defaultValue);
+    }, [setModalToOpen]);
 
     return (
         <Modal

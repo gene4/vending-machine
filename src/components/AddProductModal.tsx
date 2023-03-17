@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { ModalT, ProductT } from "../../types";
 import { addProduct } from "../api";
 import Modal from "./Modal";
@@ -18,21 +18,24 @@ function AddProductModal({ modalToOpen, setModalToOpen, setProducts }: Props) {
     const [amount, setAmount] = useState(defaultValues.amount);
     const [cost, setCost] = useState(defaultValues.cost);
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        addProduct(product, cost, amount)
-            .then(({ data }) => {
-                setProducts(data.products);
-                setModalToOpen(null);
+    const handleSubmit = useCallback(
+        (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            addProduct(product, cost, amount)
+                .then(({ data }) => {
+                    setProducts(data.products);
+                    setModalToOpen(null);
 
-                setProduct(defaultValues.product);
-                setAmount(defaultValues.amount);
-                setCost(defaultValues.cost);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    };
+                    setProduct(defaultValues.product);
+                    setAmount(defaultValues.amount);
+                    setCost(defaultValues.cost);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        },
+        [amount, cost, product, setModalToOpen, setProducts]
+    );
     return (
         <Modal
             isOpen={modalToOpen === "AddProduct"}
