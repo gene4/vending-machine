@@ -13,6 +13,7 @@ let { users, products, depositValues } = require("./data.ts");
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
+
     if (!token) {
         return res.status(401).json({ message: "Unauthorized" });
     }
@@ -58,7 +59,7 @@ app.post("/api/signup", async (req, res) => {
             expiresIn: "1h",
         });
         users.push(user);
-        console.log(user);
+
         return res.json({ token, user });
     } catch {
         res.status(500).send();
@@ -162,6 +163,27 @@ app.post("/api/deposit", [verifyToken, verifyRole("buyer")], (req, res) => {
         res.status(500).send();
     }
 });
+
+app.delete(
+    "/api/resetDeposit",
+    [verifyToken, verifyRole("buyer")],
+    (req, res) => {
+        const userId = req.user.id;
+        const userToUpdate = users.find((user) => user.id === userId);
+
+        if (userToUpdate == null) {
+            return res.status(400).send("Cannot find user");
+        }
+
+        userToUpdate.deposit = 0;
+
+        try {
+            res.send(userToUpdate);
+        } catch {
+            res.status(500).send();
+        }
+    }
+);
 
 // PRODUCT ROUTES
 

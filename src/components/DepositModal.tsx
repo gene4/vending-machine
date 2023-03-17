@@ -1,7 +1,6 @@
-import axios from "axios";
 import React, { useCallback, useState } from "react";
 import { ModalT, UserT } from "../../types";
-import { deposit } from "../api";
+import { deposit, resetDeposit } from "../api";
 import Modal from "./Modal";
 
 interface Props {
@@ -47,6 +46,19 @@ function DepositModal({
         [selectedValue, setUser]
     );
 
+    const handleReset = useCallback(() => {
+        resetDeposit()
+            .then(({ data }) => {
+                setUser(data);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+            .finally(() => {
+                setIsSubmitting(false);
+            });
+    }, [setUser]);
+
     return (
         <Modal
             isOpen={modalToOpen === "Deposit"}
@@ -82,8 +94,15 @@ function DepositModal({
                         Cancel
                     </button>
                     <button
+                        onClick={handleReset}
+                        className="button is-link mt-3 mx-5"
+                        type="button"
+                    >
+                        Reset
+                    </button>
+                    <button
                         disabled={isSubmitting}
-                        className="button is-primary mt-3  ml-5"
+                        className="button is-primary mt-3"
                         type="submit"
                     >
                         Deposit

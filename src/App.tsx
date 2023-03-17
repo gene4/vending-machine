@@ -29,7 +29,7 @@ function App() {
                     navigate("/products");
                 })
                 .catch((error) => {
-                    console.log(error);
+                    // console.log(error);
                 })
                 .finally(() => {
                     setReady(true);

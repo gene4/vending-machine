@@ -58,6 +58,15 @@ export const deposit = (value: number) => {
     );
 };
 
+export const resetDeposit = () => {
+    const token = localStorage.getItem("token");
+    console.log("token", token);
+
+    return axios.delete("http://localhost:8080/api/resetDeposit", {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+};
+
 export const getProducts = () => {
     const token = localStorage.getItem("token");
     return axios.get("http://localhost:8080/api/products", {
