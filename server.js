@@ -45,7 +45,7 @@ app.use(cors());
 app.post("/api/signup", async (req, res) => {
     // Register new user
     const uuid = crypto.randomUUID();
-    const { username, password, role } = req.body.newUser;
+    const { username, password, role } = req.body;
 
     const checkIfUsernameExists = users.find(
         (user) => user.username === username
@@ -131,7 +131,6 @@ app.get("/api/user", verifyToken, async (req, res) => {
 app.put("/api/user", verifyToken, async (req, res) => {
     // Update user
     const { username, password } = req.body;
-
     const userToUpdate = users.find((user) => user.id === req.user.id);
 
     if (userToUpdate == null) {

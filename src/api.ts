@@ -1,12 +1,10 @@
 import axios from "axios";
 
-export const signup = (newUser: {
-    username: string;
-    password: string;
-    role: string;
-}) => {
+export const signup = (username: string, password: string, role: string) => {
     return axios.post("http://localhost:8080/api/signup", {
-        newUser,
+        username,
+        password,
+        role,
     });
 };
 

@@ -2,107 +2,75 @@ const request = require("supertest");
 const baseURL = "http://localhost:8080";
 const jwt = require("jsonwebtoken");
 
-describe("POST /api/buy/:id", () => {
+describe("POST /api/signup", () => {
     const user = {
-        id: "dd879625-29b7-45cc-bdd8-e4d5aadb32b4",
-        deposit: 100,
+        username: "test-user",
+        password: "password",
+        role: "seller",
     };
 
-    let testProduct;
-    let amountToBuy = { amount: 1 };
-
-    beforeAll(async () => {
-        // Insert a test product
-        user.role = "seller";
+    it("should create a user and a token", async () => {
         const response = await request(baseURL)
-            .post("/api/products")
-            .send({
-                amount: 5,
-                cost: 20,
-                product: "🍌",
-            })
+            .post(`/api/signup`)
+            .send(user)
             .set("Authorization", `Bearer ${jwt.sign(user, "secret")}`);
-        testProduct = response.body;
-
-        // Deposit money
-        user.role = "buyer";
-        await request(baseURL)
-            .post("/api/deposit")
-            .send({ value: 100 })
-            .set("Authorization", `Bearer ${jwt.sign(user, "secret")}`);
+        expect(response.statusCode).toBe(200);
+        expect(response.body.user.username).toBe(user.username);
+        expect(response.body.token).toBeTruthy();
     });
 
-    it("should return Unauthorized because the user doesn't have a buyer role", async () => {
-        user.role = "seller";
+    it("should return that username already exists", async () => {
         const response = await request(baseURL)
-            .post(`/api/buy/${testProduct.id}`)
+            .post(`/api/signup`)
+            .send(user)
             .set("Authorization", `Bearer ${jwt.sign(user, "secret")}`);
-
-        expect(response.statusCode).toBe(401);
-        expect(response.res.text).toBe("Unauthorized role");
+        expect(response.statusCode).toBe(400);
+        expect(response.res.text).toBe("This username already exists");
     });
+});
 
-    it("should return a receipt with the product bought, total cost and change", async () => {
-        user.role = "buyer";
+describe("GET /api/user", () => {
+    const user = {
+        id: "dd879625-29b7-45cc-bdd8-e4d5aadb32b4",
+    };
+    it("should get the user", async () => {
         const response = await request(baseURL)
-            .post(`/api/buy/${testProduct.id}`)
-            .send(amountToBuy)
+            .get(`/api/user`)
             .set("Authorization", `Bearer ${jwt.sign(user, "secret")}`);
+        expect(response.statusCode).toBe(200);
+        expect(response.body.user.id).toBe(user.id);
+    });
+});
 
-        testProduct.amountAvailable -= amountToBuy.amount;
-        const receipt = response.body.receipt;
+describe("PUT /api/user", () => {
+    const user = {
+        id: "dd879625-29b7-45cc-bdd8-e4d5aadb32b4",
+    };
+    it("should get the user", async () => {
+        const response = await request(baseURL)
+            .put(`/api/user`)
+            .send({ username: "new-user-name", password: "new-password" })
+            .set("Authorization", `Bearer ${jwt.sign(user, "secret")}`);
+        expect(response.statusCode).toBe(200);
+        expect(response.body.username).toBe("new-user-name");
+    });
+});
+
+describe("DELETE /api/user", () => {
+    const userToDelete = {
+        id: "dd879625-29b7-45cc-bdd8-e4d5aadb32b4",
+    };
+    it("should return users without the deleted user", async () => {
+        const response = await request(baseURL)
+            .delete(`/api/user`)
+            .set("Authorization", `Bearer ${jwt.sign(userToDelete, "secret")}`);
+
+        const updatedUsers = response.body.users;
+        const checkForDeletedUser = updatedUsers.find(
+            (user) => user.id === userToDelete.id
+        );
 
         expect(response.statusCode).toBe(200);
-        expect(receipt.product).toStrictEqual(testProduct);
-        expect(receipt.total).toBe(testProduct.cost * amountToBuy.amount);
-        expect(receipt.change).toStrictEqual([50, 20, 10]);
-    });
-
-    it("should return that the product doesn't exist", async () => {
-        const response = await request(baseURL)
-            .post(`/api/buy/non-existing-id`)
-            .send(amountToBuy)
-            .set("Authorization", `Bearer ${jwt.sign(user, "secret")}`);
-
-        expect(response.statusCode).toBe(400);
-        expect(response.res.text).toBe("Cannot find product");
-    });
-
-    it("should return that the amount of products to buy isn't available", async () => {
-        const response = await request(baseURL)
-            .post(`/api/buy/${testProduct.id}`)
-            .send({ amount: 200 })
-            .set("Authorization", `Bearer ${jwt.sign(user, "secret")}`);
-
-        expect(response.statusCode).toBe(401);
-        expect(response.res.text).toBe(
-            `Only ${testProduct.amountAvailable} are available for this product`
-        );
-    });
-
-    it("should return that user doesn't have enough money", async () => {
-        // Reset deposit
-        const res = await request(baseURL)
-            .delete(`/api/resetDeposit`)
-            .set("Authorization", `Bearer ${jwt.sign(user, "secret")}`);
-        console.log("res.body", res);
-
-        const response = await request(baseURL)
-            .post(`/api/buy/${testProduct.id}`)
-            .send(amountToBuy)
-            .set("Authorization", `Bearer ${jwt.sign(user, "secret")}`);
-
-        expect(response.statusCode).toBe(401);
-        expect(response.res.text).toBe(
-            "You don't have enough money for this purchase"
-        );
-    });
-
-    afterAll(async () => {
-        // Remove a test product
-        user.role = "seller";
-        await request(baseURL)
-            .delete(`/api/product/${testProduct.id}`)
-            .set("Authorization", `Bearer ${jwt.sign(user, "secret")}`);
+        expect(checkForDeletedUser).toBeFalsy();
     });
 });

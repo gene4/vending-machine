@@ -17,9 +17,8 @@ function Signup({ setUser }: Props) {
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const newUser = { username, password, role };
 
-        signup(newUser)
+        signup(username, password, role)
             .then(({ data }) => {
                 console.log(data);
                 setUser(data.user);
