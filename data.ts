@@ -7,6 +7,13 @@ let users = [
         deposit: 0,
         role: "seller",
     },
+    {
+        id: "1",
+        username: "testuser",
+        password: "password",
+        deposit: 0,
+        role: "buyer",
+    },
 ];
 let products = [
     {

@@ -144,6 +144,7 @@ function App() {
                     modalToOpen={modalToOpen}
                     setModalToOpen={setModalToOpen}
                     setProducts={setProducts}
+                    products={products}
                 />
             )}
         </div>

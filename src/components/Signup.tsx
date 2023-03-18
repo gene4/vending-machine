@@ -11,6 +11,7 @@ function Signup({ setUser }: Props) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [role, setRole] = useState("seller");
+    const [error, setError] = useState("");
 
     const navigate = useNavigate();
 
@@ -27,6 +28,7 @@ function Signup({ setUser }: Props) {
             })
             .catch((error) => {
                 console.log(error);
+                setError(error.response.data);
             });
     };
 
@@ -79,6 +81,7 @@ function Signup({ setUser }: Props) {
                     />
                 </label>
             </span>
+            <p className="has-text-danger mt-5">{error}</p>
             <button className="button is-primary mt-5" type="submit">
                 Sign up
             </button>

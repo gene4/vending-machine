@@ -6,6 +6,7 @@ interface Props {
     modalToOpen: ModalT;
     setModalToOpen: (modalToOpen: ModalT) => void;
     setProducts: (products: ProductT[]) => void;
+    products: ProductT[];
 }
 
 const defaultValues = {
@@ -13,7 +14,12 @@ const defaultValues = {
     amount: 1,
     cost: 0,
 };
-function AddProductModal({ modalToOpen, setModalToOpen, setProducts }: Props) {
+function AddProductModal({
+    modalToOpen,
+    setModalToOpen,
+    setProducts,
+    products,
+}: Props) {
     const [product, setProduct] = useState(defaultValues.product);
     const [amount, setAmount] = useState(defaultValues.amount);
     const [cost, setCost] = useState(defaultValues.cost);
@@ -23,7 +29,7 @@ function AddProductModal({ modalToOpen, setModalToOpen, setProducts }: Props) {
             event.preventDefault();
             addProduct(product, amount, cost)
                 .then(({ data }) => {
-                    setProducts(data.products);
+                    setProducts([...products, data]);
                     setModalToOpen(null);
 
                     setProduct(defaultValues.product);
@@ -34,7 +40,7 @@ function AddProductModal({ modalToOpen, setModalToOpen, setProducts }: Props) {
                     console.log(error);
                 });
         },
-        [amount, cost, product, setModalToOpen, setProducts]
+        [amount, cost, product, products, setModalToOpen, setProducts]
     );
     return (
         <Modal

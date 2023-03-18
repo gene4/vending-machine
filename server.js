@@ -16,15 +16,16 @@ const verifyToken = (req, res, next) => {
     const token = authHeader && authHeader.split(" ")[1];
 
     if (!token) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).send("Unauthorized");
     }
 
     try {
+        // TODO set up a secret for production
         const decoded = jwt.verify(token, "secret");
         req.user = decoded;
         next();
     } catch (error) {
-        return res.status(403).json({ message: "Invalid token" });
+        return res.status(403).send("Invalid token");
     }
 };
 
@@ -32,7 +33,7 @@ const verifyRole = (roleToCheck) => (req, res, next) => {
     if (req.user.role === roleToCheck) {
         next();
     } else {
-        return res.status(401).json({ message: "Unauthorized role" });
+        return res.status(401).send("Unauthorized role");
     }
 };
 
@@ -45,30 +46,38 @@ app.post("/api/signup", async (req, res) => {
     // Register new user
     const uuid = crypto.randomUUID();
     const { username, password, role } = req.body.newUser;
+
+    const checkIfUsernameExists = users.find(
+        (user) => user.username === username
+    );
+    if (checkIfUsernameExists) {
+        return res.status(400).send("This username already exists");
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
+    const user = {
+        id: uuid,
+        username,
+        password: hashedPassword,
+        deposit: 0,
+        role,
+    };
+
+    const token = jwt.sign(
+        {
+            id: user.id,
+            role: user.role,
+            username: user.username,
+        },
+        "secret",
+        {
+            expiresIn: "1h",
+        }
+    );
+
+    users.push(user);
 
     try {
-        const user = {
-            id: uuid,
-            username,
-            password: hashedPassword,
-            deposit: 0,
-            role,
-        };
-
-        const token = jwt.sign(
-            {
-                id: user.id,
-                role: user.role,
-                username: user.username,
-            },
-            "secret",
-            {
-                expiresIn: "1h",
-            }
-        );
-        users.push(user);
-
         return res.json({ token, user });
     } catch {
         res.status(500).send();
@@ -163,15 +172,12 @@ app.post("/api/deposit", [verifyToken, verifyRole("buyer")], (req, res) => {
     const userId = req.user.id;
 
     if (!depositValues.includes(value)) {
-        return res.status(422).json({ message: "Please enter a valid value" });
+        return res
+            .status(422)
+            .send("This machine only expects 5¢, 10¢, 20¢, 50¢ or 100¢ coins");
     }
 
     const userToUpdate = users.find((user) => user.id === userId);
-
-    if (userToUpdate == null) {
-        return res.status(400).send("Cannot find user");
-    }
-
     userToUpdate.deposit += value;
 
     try {
@@ -217,7 +223,6 @@ app.post(
     [verifyToken, verifyRole("seller")],
     async (req, res) => {
         const { product, amount, cost } = req.body;
-
         const uuid = crypto.randomUUID();
 
         const newProduct = {
@@ -230,7 +235,7 @@ app.post(
         products.push(newProduct);
 
         try {
-            return res.json({ products });
+            return res.send(newProduct);
         } catch {
             res.status(500).send();
         }
@@ -304,8 +309,8 @@ app.post(
         if (productToBuy.amountAvailable < amount) {
             return res
                 .status(401)
-                .json(
-                    `Only ${productToBuy.amount} are available for this product`
+                .send(
+                    `Only ${productToBuy.amountAvailable} are available for this product`
                 );
         }
 
@@ -313,7 +318,7 @@ app.post(
         if (user.deposit - productToBuy.cost * amount < 0) {
             return res
                 .status(401)
-                .json("You don't have enough money for this purchase");
+                .send("You don't have enough money for this purchase");
         }
 
         // Update product's amount; if the left amount is 0, remove from list
