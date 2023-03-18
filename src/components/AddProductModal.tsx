@@ -49,7 +49,10 @@ function AddProductModal({
         >
             <div className="is-flex is-justify-content-center">
                 <form onSubmit={handleSubmit}>
-                    <label className="label is-flex pr-2" htmlFor="username">
+                    <label
+                        className="label is-flex is-align-items-center"
+                        htmlFor="username"
+                    >
                         Product
                         <input
                             type="text"
@@ -57,11 +60,14 @@ function AddProductModal({
                             required
                             value={product}
                             onChange={(event) => setProduct(event.target.value)}
-                            className="input ml-3"
+                            className="input ml-5"
                         />
                     </label>
 
-                    <label className="label is-flex pr-2 my-4" htmlFor="amount">
+                    <label
+                        className="label is-flex is-align-items-center my-4"
+                        htmlFor="amount"
+                    >
                         Amount
                         <input
                             type="number"
@@ -72,10 +78,13 @@ function AddProductModal({
                             onChange={(event) =>
                                 setAmount(event.target.valueAsNumber)
                             }
-                            className="input ml-3"
+                            className="input ml-5"
                         />
                     </label>
-                    <label className="label is-flex pr-2 my-4" htmlFor="cost">
+                    <label
+                        className="label is-flex is-align-items-center my-4"
+                        htmlFor="cost"
+                    >
                         Cost
                         <input
                             type="number"
@@ -87,7 +96,7 @@ function AddProductModal({
                             onChange={(event) =>
                                 setCost(event.target.valueAsNumber)
                             }
-                            className="input ml-3"
+                            className="input ml-5"
                         />
                     </label>
 

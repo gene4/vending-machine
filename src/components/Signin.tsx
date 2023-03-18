@@ -24,37 +24,35 @@ function Signin({ setUser }: Props) {
                 navigate("/products");
             })
             .catch((error) => {
-                if (error) {
-                    setError("User or password are incorrect");
-                }
+                setError(error.response.data);
             });
     };
 
     return (
         <form className="box" onSubmit={handleSubmit}>
-            <label className="label is-flex pr-2" htmlFor="username">
+            <label className="label is-flex" htmlFor="username">
                 Username
                 <input
                     type="text"
                     name="username"
                     required
                     onChange={(event) => setUsername(event.target.value)}
-                    className="input ml-3"
+                    className="input ml-5"
                 />
             </label>
 
-            <label className="label is-flex pr-2 my-4" htmlFor="password">
+            <label className="label is-flex my-4" htmlFor="password">
                 Password
                 <input
                     type="password"
                     name="password"
                     required
                     onChange={(event) => setPassword(event.target.value)}
-                    className="input ml-3"
+                    className="input ml-5"
                 />
             </label>
             <p className="has-text-danger mb-1">{error}</p>
-            <p>
+            <p className="mt-4">
                 Dont have an account? <Link to={"/signup"}>signup here!</Link>
             </p>
 

@@ -34,7 +34,7 @@ function Signup({ setUser }: Props) {
 
     return (
         <form className="box" onSubmit={handleSubmit}>
-            <label className="label is-flex pr-2" htmlFor="username">
+            <label className="label is-flex" htmlFor="username">
                 Username
                 <input
                     type="text"
@@ -45,7 +45,7 @@ function Signup({ setUser }: Props) {
                 />
             </label>
 
-            <label className="label is-flex pr-2 my-4" htmlFor="password">
+            <label className="label is-flex my-4" htmlFor="password">
                 Password
                 <input
                     type="password"
@@ -55,7 +55,7 @@ function Signup({ setUser }: Props) {
                     className="input ml-5"
                 />
             </label>
-            <span className="is-flex mt-5">
+            <span className="is-flex">
                 <label htmlFor="role">
                     Seller
                     <input
@@ -81,7 +81,7 @@ function Signup({ setUser }: Props) {
                     />
                 </label>
             </span>
-            <p className="has-text-danger mt-5">{error}</p>
+            {error && <p className="has-text-danger mt-5">{error}</p>}
             <button className="button is-primary mt-5" type="submit">
                 Sign up
             </button>

@@ -62,7 +62,7 @@ function EditUserModal({ modalToOpen, setModalToOpen, setUser, user }: Props) {
                     ) : (
                         <>
                             <label
-                                className="label is-flex pr-2"
+                                className="label is-flex is-align-items-center"
                                 htmlFor="username"
                             >
                                 Username
@@ -73,12 +73,12 @@ function EditUserModal({ modalToOpen, setModalToOpen, setUser, user }: Props) {
                                     onChange={(event) =>
                                         setUsername(event.target.value)
                                     }
-                                    className="input ml-3"
+                                    className="input ml-5"
                                 />
                             </label>
 
                             <label
-                                className="label is-flex pr-2 my-4"
+                                className="label is-flex my-4 is-align-items-center"
                                 htmlFor="password"
                             >
                                 Password
@@ -89,7 +89,7 @@ function EditUserModal({ modalToOpen, setModalToOpen, setUser, user }: Props) {
                                     onChange={(event) =>
                                         setPassword(event.target.value)
                                     }
-                                    className="input ml-3"
+                                    className="input ml-5"
                                 />
                             </label>
                         </>
