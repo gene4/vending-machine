@@ -64,7 +64,7 @@ function DepositModal({
             isOpen={modalToOpen === "Deposit"}
             close={() => setModalToOpen(null)}
         >
-            <h2 className="subtitle">Current deposit: {userDepositValue}</h2>
+            <h2 className="subtitle">Current deposit: {userDepositValue}¢</h2>
             <form className="p-0" onSubmit={handleSubmit}>
                 <div className="is-flex is-justify-content-center">
                     {values.map((value) => (
@@ -73,7 +73,7 @@ function DepositModal({
                             className="ml-5 mb-3 is-block"
                             htmlFor="value"
                         >
-                            {value}
+                            {value}¢
                             <input
                                 type="radio"
                                 name="value"
@@ -88,10 +88,10 @@ function DepositModal({
                 <div className="is-flex is-justify-content-center">
                     <button
                         onClick={handleClose}
-                        className="button is-danger mt-3"
+                        className="button is-warning mt-3"
                         type="button"
                     >
-                        Cancel
+                        Close
                     </button>
                     <button
                         onClick={handleReset}

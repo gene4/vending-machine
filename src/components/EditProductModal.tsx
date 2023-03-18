@@ -35,8 +35,6 @@ function EditProductModal({
 
             updateProduct(product.id, productName, amount, cost)
                 .then(({ data }) => {
-                    console.log(data);
-
                     setProducts(data.products);
                     setModalToOpen(null);
                 })
@@ -97,7 +95,7 @@ function EditProductModal({
                         <input
                             type="number"
                             name="cost"
-                            step={"any"}
+                            step={5}
                             min={0}
                             value={cost}
                             required

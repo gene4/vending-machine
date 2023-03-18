@@ -12,6 +12,12 @@ interface Props {
     setUser: (user: UserT) => void;
 }
 
+type ReceiptT = {
+    product: ProductT;
+    total: number;
+    change: number[];
+};
+
 function BuyProductModal({
     modalToOpen,
     setModalToOpen,
@@ -20,59 +26,83 @@ function BuyProductModal({
     product,
     setUser,
 }: Props) {
-    const [purchaseStatus, setPurchaseStatus] = useState("waiting to start");
+    const [receipt, setReceipt] = useState<ReceiptT | undefined>();
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
 
     const runBuyProduct = useCallback(() => {
+        setIsLoading(true);
+
         buyProduct(product.id, amount)
             .then(({ data }) => {
-                const { product, total, change } = data.receipt;
-
-                // setMessage(
-                //     `Product:${
-                //         product.productName
-                //     } Total:${total}¢ Change:${change.map(
-                //         (coin: number) => coin
-                //     )} `
-                // );
-                console.log("user", data.user);
-
+                setReceipt(data.receipt);
                 setProducts(data.products);
                 setUser(data.user);
+                setIsLoading(false);
             })
             .catch((error) => {
                 console.log(error);
+                setError(error.response.data);
+                setIsLoading(false);
             });
     }, [amount, product.id, setProducts, setUser]);
 
     const handleClose = useCallback(() => {
         setModalToOpen(null);
+        setReceipt(undefined);
+        setIsLoading(false);
         setError("");
     }, [setModalToOpen]);
 
     return (
         <Modal isOpen={modalToOpen === "BuyProduct"} close={handleClose}>
-            <span className="is-size-5">
-                <p>Product: {product.productName}</p>
-                <p>Price: {product.cost}¢</p>
-                <p>Amount: {amount}</p>
-                <p> Total: {product.cost * amount}¢</p>
-            </span>
-            <p> {error}</p>
+            {receipt ? (
+                <span>
+                    <h2 className="title">Receipt ✅</h2>
+                    <div className="is-flex is-justify-content-center is-align-items-center">
+                        <p className="is-size-1 mr-5">
+                            {receipt.product.productName}
+                        </p>
+                        <p> Total: {receipt.total}¢</p>
+                    </div>
+                    <div className="mb-3 is-flex is-justify-content-center">
+                        Change:{" "}
+                        {receipt.change.length !== 0
+                            ? receipt.change.map((coin, index) => (
+                                  <p key={index} className="coin">
+                                      {coin}
+                                  </p>
+                              ))
+                            : 0}
+                    </div>
+                </span>
+            ) : (
+                <span className="is-size-5">
+                    <p className="is-size-1">{product.productName}</p>
+                    <p>{`${product.cost}¢ x ${amount}`}</p>
+                    <b className="mt-3"> Total: {product.cost * amount}¢</b>
+                </span>
+            )}
+            <p className="has-text-danger mt-2"> {error}</p>
             <button
                 onClick={handleClose}
-                className="button is-warning mt-5 mr-5"
+                className="button is-warning mt-5"
                 type="button"
             >
                 Close
             </button>
-            <button
-                onClick={runBuyProduct}
-                className="button is-primary mt-5"
-                type="button"
-            >
-                Buy
-            </button>
+            {!receipt && (
+                <button
+                    onClick={runBuyProduct}
+                    className={`button is-primary mt-5 ml-5 ${
+                        isLoading && "is-loading"
+                    }`}
+                    disabled={isLoading || !!error}
+                    type="button"
+                >
+                    Buy
+                </button>
+            )}
         </Modal>
     );
 }

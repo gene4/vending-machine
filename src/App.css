@@ -32,3 +32,15 @@
     transform: scale(1.1);
     transition: all 0.2s;
 }
+
+.coin {
+    margin-left: 0.5rem;
+}
+
+.coin::after {
+    content: "¢";
+}
+
+.coin:not(:last-child)::after {
+    content: "¢ ,";
+}

@@ -74,6 +74,7 @@ function Products({
                             <p className="product-emoji">
                                 {product.productName}
                             </p>
+
                             {user.role === "seller" ? (
                                 <p>{product.amountAvailable} left</p>
                             ) : (
@@ -109,7 +110,7 @@ function Products({
                                     }
                                     className="button mt-2 is-rounded is-small is-light is-link is-fullwidth"
                                 >
-                                    Buy {product.cost}¢
+                                    Buy
                                 </button>
                             ) : (
                                 <>
