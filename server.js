@@ -89,7 +89,7 @@ app.post("/api/signin", async (req, res) => {
     const { username, password } = req.body;
     const user = users.find((user) => user.username === username);
     if (user == null) {
-        return res.status(400).send("Cannot find user");
+        return res.status(400).send("Username or password are incorrect");
     }
     try {
         if (await bcrypt.compare(password, user.password)) {
@@ -106,7 +106,7 @@ app.post("/api/signin", async (req, res) => {
             );
             return res.json({ token, user });
         } else {
-            return res.status(400).send("Invalid password");
+            return res.status(400).send("Username or password are incorrect");
         }
     } catch {
         res.status(500).send();
