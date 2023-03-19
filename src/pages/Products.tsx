@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { ModalT, ProductT, UserT } from "../../types";
 import { useNavigate } from "react-router-dom";
-import DeleteProductModal from "./DeleteProductModal";
+import DeleteProductModal from "../components/DeleteProductModal";
 import { deleteProduct, getProducts } from "../api";
-import EditProductModal from "./EditProductModal";
-import BuyProductModal from "./BuyProductModal";
+import EditProductModal from "../components/EditProductModal";
+import BuyProductModal from "../components/BuyProductModal";
 
 interface Props {
     products: ProductT[] | undefined;

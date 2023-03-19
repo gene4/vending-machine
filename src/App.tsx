@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { ModalT, ProductT, UserT } from "../types";
 import "./App.css";
-import Signin from "./components/Signin";
-import Signup from "./components/Signup";
+import Signin from "./pages/Signin";
+import Signup from "./pages/Signup";
 import { Route, Routes, useNavigate } from "react-router-dom";
-import Products from "./components/Products";
+import Products from "./pages/Products";
 import EditUserModal from "./components/EditUserModal";
 import DeleteUserModal from "./components/DeleteUserModal";
 import AddProductModal from "./components/AddProductModal";
