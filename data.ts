@@ -1,4 +1,4 @@
-let users = [
+const users = [
     {
         id: "dd879625-29b7-45cc-bdd8-e4d5aadb32b4",
         username: "gene4",
@@ -8,7 +8,7 @@ let users = [
         role: "seller",
     },
 ];
-let products = [
+const products = [
     {
         id: "1",
         amountAvailable: 2,
